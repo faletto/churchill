@@ -8,5 +8,6 @@ clap = {version = "4.5.37", features = ["derive"]}
 ctrlc = "3.4.6"
 dhcp4r = "0.2.3"
 getifaddrs = "0.1.5"
+libc = "0.2.172"
 pnet = "0.35.0"
 rand = "0.9.1"

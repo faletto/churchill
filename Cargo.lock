@@ -93,6 +93,7 @@ dependencies = [
  "ctrlc",
  "dhcp4r",
  "getifaddrs",
+ "libc",
  "pnet",
  "rand",
 ]
