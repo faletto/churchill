@@ -5,8 +5,10 @@ use dhcp4r::packet::Packet;
 use getifaddrs::{Interface, getifaddrs};
 use rand::Rng;
 use std::io::{self, Write};
-use std::net::{Ipv4Addr, UdpSocket};
+use std::net::{Ipv4Addr, UdpSocket,SocketAddr};
+use std::str::FromStr;
 use std::time::Duration;
+use socket2::{Socket,Domain,Type,Protocol};
 
 // Information displayed in the CLI help menu
 #[derive(Parser, Debug)]
@@ -106,9 +108,25 @@ fn main() {
     };
     // Creates buffer array for packet
     let mut buf = [0u8; 1500];
+    let socket : UdpSocket;
+    #[cfg(target_family="windows")] {
     // Creates UDP socket on specified interface
-    let socket = UdpSocket::bind(format!("{}:68", addr)).unwrap();
+    socket = UdpSocket::bind(format!("{}:68", addr)).unwrap();
+    }
+
+    #[cfg(any(target_os="linux",target_os = "macos"))]
+    {
+        let addr = SocketAddr::from_str(format!("{}:68",addr).as_str()).unwrap();
+        let socketRaw = Socket::new(Domain::IPV4,Type::DGRAM,Some(Protocol::UDP)).unwrap();
+        socketRaw.set_reuse_address(true).unwrap();
+        socketRaw.bind(&addr.into()).unwrap();
+        socket = socketRaw.into();
+
+    }
+
     socket.set_broadcast(true).ok();
+
+
 
     // Formatters for print statement below
     let number;
